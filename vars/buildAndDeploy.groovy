@@ -8,17 +8,20 @@ def call(Map config) {
             stage('Check Commit and Prevent Loop') {
                 steps {
                     script {
-                        // Jenkins automatically checks out the code that triggered the build.
-                        // We just need to read the last commit message from that checkout.
-                        def commitMessage = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
+                        // We must clone the repo here to get the LATEST commit message
+                        git url: "${config.gitUrl}", branch: "${config.gitBranch}"
+                        
+                        // Get the last commit message from the cloned repository
+                        def commitMessage = sh(script: "git log -1 --pretty=%B", returnStdout: true).trim()
 
-                        // If the last commit was made by our CI, stop the pipeline
+                        // If the last commit was made by Jenkins, stop the pipeline
                         if (commitMessage.contains('[skip ci]')) {
-                            echo "CI commit detected. Skipping build to prevent loop."
+                            echo "Commit was made by our CI. Skipping build to prevent a loop."
+                            // This command gracefully stops the pipeline and marks it as successful
                             currentBuild.result = 'SUCCESS'
                             return
                         }
-                        echo "User commit detected. Proceeding with build."
+                        echo "User commit detected. Proceeding with the build."
                     }
                 }
             }
@@ -41,9 +44,6 @@ def call(Map config) {
             stage('Update & Commit Manifests') {
                 steps {
                     script {
-                        // We must clone the repo again here to be able to push back
-                        git url: "${config.gitUrl}", branch: "${config.gitBranch}"
-
                         echo "Updating Kubernetes deployment with new image..."
                         def imageName = "${config.dockerhubUser}/${config.imageRepo}"
                         def imageTag = "build-${BUILD_NUMBER}"
