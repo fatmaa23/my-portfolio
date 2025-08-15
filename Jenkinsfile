@@ -1,11 +1,11 @@
-// Use the shared library from the same repository (master branch)
-@Library('github.com/fatmaa23/my-portfolio@main') _
+// No @Library call needed! Jenkins automatically finds the 'vars' folder
+// in the same repository and makes its scripts available.
 
-// Call the shared library function with project-specific configuration
+// Call the script from the 'vars' folder directly
 buildAndDeploy(
     gitUrl: 'https://github.com/fatmaa23/my-portfolio.git',
     gitBranch: 'main',
-    dockerhubUser: 'fatmaa23',
+    dockerhubUser: 'fatmaa23', // <-- !! غير دي لليوزر بتاعك في دوكر هب
     imageRepo: 'my-portfolio',
     githubRepo: 'fatmaa23/my-portfolio'
 )
