@@ -52,8 +52,8 @@ def call(Map config) {
                         
                         echo "Committing and pushing manifest changes to Git..."
                         withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
-                            sh "git config --global user.email 'jenkins@example.com'"
-                            sh "git config --global user.name 'Jenkins CI'"
+                            sh "git config --global user.email 'fatmaa@gmail.com'"
+                            sh "git config --global user.name 'Fatma Ahmed'"
                             sh "git add k8s/deployment.yaml"
                             sh "git commit -m 'CI: Update image to ${IMAGE_NAME}:${IMAGE_TAG} [skip ci]'"
                             sh "git push https://${GIT_USER}:${GIT_TOKEN}@github.com/${config.githubRepo}.git HEAD:main"
