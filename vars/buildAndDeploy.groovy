@@ -4,15 +4,13 @@ def call(Map config) {
         agent any
 
         stages {
-            // This stage is the final and correct way to prevent build loops
+            // This is the 100% reliable way to prevent build loops
             stage('Check Commit and Prevent Loop') {
                 steps {
                     script {
-                        // Jenkins automatically checks out the code that triggered the build.
-                        // We just need to read the last commit message from that checkout.
-                        def commitMessage = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
-
-                        // If the last commit was made by our CI, stop the pipeline
+                        // Use Jenkins's built-in variable to check the commit message
+                        def commitMessage = currentBuild.changeSets[0]?.msg ?: ''
+                        
                         if (commitMessage.contains('[skip ci]')) {
                             echo "CI commit detected. Skipping build to prevent loop."
                             currentBuild.result = 'SUCCESS'
@@ -41,6 +39,9 @@ def call(Map config) {
             stage('Update & Commit Manifests') {
                 steps {
                     script {
+                        // We must clone the repo here to be able to push back
+                        git url: "${config.gitUrl}", branch: "${config.gitBranch}"
+
                         echo "Updating Kubernetes deployment with new image..."
                         def imageName = "${config.dockerhubUser}/${config.imageRepo}"
                         def imageTag = "build-${BUILD_NUMBER}"
