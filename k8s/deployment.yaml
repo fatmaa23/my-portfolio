@@ -23,7 +23,7 @@ spec:
       containers:
       # --- Container 1: Your Nginx Application ---
       - name: my-portfolio
-        image: fatmaa23/my-portfolio:build-67
+        image: fatmaa23/my-portfolio:build-68
         ports:
         - containerPort: 80
         # Mount the new Nginx configuration
@@ -34,7 +34,7 @@ spec:
 
       # --- Container 2: The Nginx Exporter Sidecar ---
       - name: nginx-exporter
-        image: fatmaa23/my-portfolio:build-67
+        image: fatmaa23/my-portfolio:build-68
         args:
         - -nginx.scrape-uri=http://127.0.0.1:80/stub_status
         ports:
