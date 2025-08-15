@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: my-portfolio
-        image: fatmaa23/my-portfolio:latest # We will replace this in the CI/CD pipeline
+        image: fatmaa23/my-portfolio:build-20
         ports:
         - containerPort: 80
