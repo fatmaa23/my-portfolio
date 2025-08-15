@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: my-portfolio
-        image: fatmaa23/my-portfolio:build-75
+        image: fatmaa23/my-portfolio:build-76
         ports:
         - containerPort: 80
         volumeMounts:
@@ -26,7 +26,7 @@ spec:
 
       # --- Container 2: The Nginx Exporter Sidecar (Final Fix) ---
       - name: nginx-exporter
-        image: fatmaa23/my-portfolio:build-75
+        image: fatmaa23/my-portfolio:build-76
         # *** THIS IS THE FIX ***
         # We are removing the 'command' line completely.
         # The default entrypoint of the image is smart enough to handle the args.
