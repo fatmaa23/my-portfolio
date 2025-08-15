@@ -13,12 +13,8 @@ spec:
     metadata:
       labels:
         app: my-portfolio
-      annotations:
-        prometheus.io/scrape: 'true'
-        prometheus.io/port: '9113'
     spec:
       containers:
-      # --- Container 1: Your Nginx Application ---
       - name: my-portfolio
         image: fatmaa23/my-portfolio:build-73
         ports:
@@ -30,7 +26,7 @@ spec:
 
       # --- Container 2: The Nginx Exporter Sidecar (Final Fix) ---
       - name: nginx-exporter
-        image: fatmaa23/my-portfolio:build-73
+        image: nginx/nginx-prometheus-exporter:0.11.0
         # *** THIS IS THE FIX ***
         # We are removing the 'command' line completely.
         # The default entrypoint of the image is smart enough to handle the args.
