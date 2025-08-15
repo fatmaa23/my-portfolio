@@ -1,5 +1,18 @@
 // The call method allows the file to be executed like a function
 def call(Map config) {
+    // --- START: Build Loop Prevention ---
+    // Get the last commit message
+    def commitMessage = sh(script: "git log -1 --pretty=%B", returnStdout: true).trim()
+
+    // If the last commit was made by Jenkins, stop the pipeline
+    if (commitMessage.contains('[skip ci]')) {
+        echo "Commit was made by Jenkins CI. Skipping build."
+        // This command gracefully stops the pipeline
+        currentBuild.result = 'SUCCESS'
+        return
+    }
+    // --- END: Build Loop Prevention ---
+
     pipeline {
         agent any
 
