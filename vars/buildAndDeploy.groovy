@@ -3,7 +3,6 @@ def call(Map config) {
     pipeline {
         agent any
 
-        // Define environment variables used throughout the pipeline
         environment {
             IMAGE_NAME = "${config.dockerhubUser}/${config.imageRepo}"
             IMAGE_TAG = "build-${BUILD_NUMBER}"
@@ -17,33 +16,35 @@ def call(Map config) {
                 }
             }
 
-            stage('Build Docker Image') {
+            stage('Build and Push Docker Image') {
                 steps {
                     script {
                         echo "Building Docker image: ${IMAGE_NAME}:${IMAGE_TAG}"
-                        docker.build(IMAGE_NAME, ".")
-                    }
-                }
-            }
+                        def customImage = docker.build(IMAGE_NAME, ".")
 
-            stage('Push Docker Image to Docker Hub') {
-                steps {
-                    script {
                         docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
                             echo "Pushing Docker image: ${IMAGE_NAME}:${IMAGE_TAG}"
-                            docker.image(IMAGE_NAME).push(IMAGE_TAG)
-                            docker.image(IMAGE_NAME).push('latest')
+                            customImage.push(IMAGE_TAG)
+                            customImage.push('latest')
                         }
                     }
                 }
             }
 
-            stage('Update Kubernetes Manifests') {
+            stage('DEBUG: Verify File Change') {
                 steps {
                     script {
-                        echo "Updating Kubernetes deployment with new image..."
-                        // Corrected command on a single line
+                        echo "--- STEP 1: Content of deployment.yaml BEFORE sed ---"
+                        sh 'cat k8s/deployment.yaml'
+
+                        echo "--- STEP 2: Running sed command to update image to ${IMAGE_NAME}:${IMAGE_TAG} ---"
                         sh "sed -i 's|image: .*|image: ${IMAGE_NAME}:${IMAGE_TAG}|' k8s/deployment.yaml"
+
+                        echo "--- STEP 3: Content of deployment.yaml AFTER sed ---"
+                        sh 'cat k8s/deployment.yaml' // This will PROVE if the file was changed.
+
+                        echo "--- STEP 4: Checking git status BEFORE commit ---"
+                        sh 'git status' // This will PROVE if Git sees the change.
                     }
                 }
             }
@@ -56,7 +57,7 @@ def call(Map config) {
                     script {
                         echo "Committing and pushing manifest changes to Git..."
                         withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
-                            sh "git config --global user.email 'fatmaa@example.com'"
+                            sh "git config --global user.email 'jenkins@example.com'"
                             sh "git config --global user.name 'Jenkins CI'"
                             sh "git add k8s/deployment.yaml"
                             sh "git commit -m 'CI: Update image to ${IMAGE_NAME}:${IMAGE_TAG} [skip ci]'"
