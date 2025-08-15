@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: my-portfolio
-        image: fatmaa23/my-portfolio:build-24
+        image: fatmaa23/my-portfolio:build-25
         ports:
         - containerPort: 80
