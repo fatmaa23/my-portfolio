@@ -6,7 +6,6 @@ def call(Map config) {
         // Define environment variables used throughout the pipeline
         environment {
             // Use Jenkins credentials for Docker Hub
-            DOCKER_HUB_CREDS = credentials('dockerhub-credentials') 
             // Define the Docker image name and tag
             IMAGE_NAME = "${config.dockerhubUser}/${config.imageRepo}"
             IMAGE_TAG = "build-${BUILD_NUMBER}"
@@ -36,7 +35,7 @@ def call(Map config) {
                 steps {
                     script {
                         // Log in to Docker Hub and push the image
-                        docker.withRegistry('https://registry.hub.docker.com', DOCKER_HUB_CREDS) {
+                        docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
                             echo "Pushing Docker image: ${IMAGE_NAME}:${IMAGE_TAG}"
                             docker.image(IMAGE_NAME).push(IMAGE_TAG)
                             
