@@ -20,7 +20,7 @@ spec:
       containers:
       # --- Container 1: Your Nginx Application ---
       - name: my-portfolio
-        image: fatmaa23/my-portfolio:build-71
+        image: fatmaa23/my-portfolio:build-72
         ports:
         - containerPort: 80
         volumeMounts:
@@ -30,7 +30,7 @@ spec:
 
       # --- Container 2: The Nginx Exporter Sidecar (Corrected) ---
       - name: nginx-exporter
-        image: fatmaa23/my-portfolio:build-71
+        image: fatmaa23/my-portfolio:build-72
         # *** THIS IS THE FIX ***
         # We are now explicitly telling the container which command to run,
         # which avoids any errors from the default entrypoint script.
