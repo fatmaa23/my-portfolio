@@ -1,11 +1,12 @@
-// No @Library call needed! Jenkins automatically finds the 'vars' folder
-// in the same repository and makes its scripts available.
+// We are explicitly telling Jenkins to load the library named 'my-portfolio'.
+// The @main part means use the 'main' branch of that library.
+@Library('my-portfolio@main') _
 
-// Call the script from the 'vars' folder directly
+// Now we can call the function from the library
 buildAndDeploy(
     gitUrl: 'https://github.com/fatmaa23/my-portfolio.git',
     gitBranch: 'main',
-    dockerhubUser: 'fatmaa23', // <-- !! غير دي لليوزر بتاعك في دوكر هب
+    dockerhubUser: 'your-dockerhub-username', // <-- Make sure to replace this!
     imageRepo: 'my-portfolio',
     githubRepo: 'fatmaa23/my-portfolio'
 )
