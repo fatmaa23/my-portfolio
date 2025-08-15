@@ -5,8 +5,6 @@ def call(Map config) {
 
         // Define environment variables used throughout the pipeline
         environment {
-            // Use Jenkins credentials for Docker Hub
-            // Define the Docker image name and tag
             IMAGE_NAME = "${config.dockerhubUser}/${config.imageRepo}"
             IMAGE_TAG = "build-${BUILD_NUMBER}"
         }
@@ -15,8 +13,6 @@ def call(Map config) {
             stage('Cloning Git Repository') {
                 steps {
                     echo "Cloning the repository..."
-                    // This step is implicitly handled by Jenkins when checking out the Jenkinsfile
-                    // but we can add explicit checkout if needed.
                     git url: "${config.gitUrl}", branch: "${config.gitBranch}"
                 }
             }
@@ -38,7 +34,6 @@ def call(Map config) {
                         docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
                             echo "Pushing Docker image: ${IMAGE_NAME}:${IMAGE_TAG}"
                             docker.image(IMAGE_NAME).push(IMAGE_TAG)
-                            
                             // Also push the 'latest' tag for simplicity with Kubernetes
                             docker.image(IMAGE_NAME).push('latest')
                         }
@@ -50,9 +45,8 @@ def call(Map config) {
                 steps {
                     script {
                         echo "Updating Kubernetes deployment with new image..."
-                        // Use a simple shell command to replace the image placeholder
-                        // sed is a powerful stream editor for this task
-                        // This is the new, correct line
+                        // *** THIS IS THE CORRECTED LINE ***
+                        // The command is now on a single line.
                         sh "sed -i 's|image: .*|image: ${IMAGE_NAME}:${IMAGE_TAG}|' k8s/deployment.yaml"
                     }
                 }
@@ -68,9 +62,11 @@ def call(Map config) {
                         echo "Committing and pushing manifest changes to Git..."
                         withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
                             sh "git config --global user.email 'fatmaa@example.com'"
-                            sh "git config --global user.name 'Fatma'"
+                            sh "git config --global user.name 'Fatma Ahmed'"
                             sh "git add k8s/deployment.yaml"
-                            sh "git commit -m 'CI: Update image to ${IMAGE_NAME}:latest [skip ci]'"
+                            // *** THIS IS THE CORRECTED COMMIT MESSAGE ***
+                            // It now uses the correct IMAGE_TAG variable.
+                            sh "git commit -m 'CI: Update image to ${IMAGE_NAME}:${IMAGE_TAG} [skip ci]'"
                             // Use the credentials to push back to the repository
                             sh "git push https://${GIT_USER}:${GIT_TOKEN}@github.com/${config.githubRepo}.git HEAD:main"
                         }
