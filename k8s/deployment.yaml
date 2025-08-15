@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: my-portfolio
-        image: fatmaa23/my-portfolio:build-29
+        image: fatmaa23/my-portfolio:latest # This is a placeholder and will be replaced by Jenkins
         ports:
         - containerPort: 80
