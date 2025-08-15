@@ -9,7 +9,8 @@ def call(Map config) {
                 steps {
                     script {
                         // Use Jenkins's built-in variable to check the commit message
-                        def commitMessage = currentBuild.changeSets[0]?.msg ?: ''
+                        // The '.comment' property is the correct one to use.
+                        def commitMessage = currentBuild.changeSets[0]?.comment ?: ''
                         
                         if (commitMessage.contains('[skip ci]')) {
                             echo "CI commit detected. Skipping build to prevent loop."
@@ -63,3 +64,4 @@ def call(Map config) {
         }
     }
 }
+
