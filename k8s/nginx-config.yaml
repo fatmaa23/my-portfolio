@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+data:
+  default.conf: |
+    server {
+        listen       80;
+        server_name  localhost;
+
+        location / {
+            root   /usr/share/nginx/html;
+            index  index.html index.htm;
+        }
+
+        # This is the new part that enables the status page
+        location /stub_status {
+            stub_status;
+            allow 127.0.0.1; # Only allow access from within the pod
+            deny all;
+        }
+    }
