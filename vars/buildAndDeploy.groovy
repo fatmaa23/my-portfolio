@@ -8,6 +8,9 @@ def call(Map config) {
             stage('Check Commit Message') {
                 steps {
                     script {
+                        // We must clone the repo here to get the LATEST commit message
+                        git url: "${config.gitUrl}", branch: "${config.gitBranch}"
+                        
                         // Get the last commit message from the cloned repository
                         def commitMessage = sh(script: "git log -1 --pretty=%B", returnStdout: true).trim()
 
