@@ -31,30 +31,12 @@ def call(Map config) {
                 }
             }
 
-            stage('DEBUG: Verify File Change') {
+            stage('Update & Commit Manifests') {
                 steps {
                     script {
-                        echo "--- STEP 1: Content of deployment.yaml BEFORE sed ---"
-                        sh 'cat k8s/deployment.yaml'
-
-                        echo "--- STEP 2: Running sed command to update image to ${IMAGE_NAME}:${IMAGE_TAG} ---"
+                        echo "Updating Kubernetes deployment with new image..."
                         sh "sed -i 's|image: .*|image: ${IMAGE_NAME}:${IMAGE_TAG}|' k8s/deployment.yaml"
-
-                        echo "--- STEP 3: Content of deployment.yaml AFTER sed ---"
-                        sh 'cat k8s/deployment.yaml' // This will PROVE if the file was changed.
-
-                        echo "--- STEP 4: Checking git status BEFORE commit ---"
-                        sh 'git status' // This will PROVE if Git sees the change.
-                    }
-                }
-            }
-            
-            stage('Commit and Push Manifest Changes') {
-                when {
-                    branch 'main'
-                }
-                steps {
-                    script {
+                        
                         echo "Committing and pushing manifest changes to Git..."
                         withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
                             sh "git config --global user.email 'jenkins@example.com'"
