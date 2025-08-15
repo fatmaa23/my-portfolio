@@ -6,7 +6,7 @@
 buildAndDeploy(
     gitUrl: 'https://github.com/fatmaa23/my-portfolio.git',
     gitBranch: 'main',
-    dockerhubUser: 'your-dockerhub-username', // <-- Make sure to replace this!
+    dockerhubUser: 'fatmaa23', // <-- Make sure to replace this!
     imageRepo: 'my-portfolio',
     githubRepo: 'fatmaa23/my-portfolio'
 )
