@@ -4,25 +4,6 @@ def call(Map config) {
         agent any
 
         stages {
-            // This stage is the final and correct way to prevent build loops
-            stage('Check Commit and Prevent Loop') {
-                steps {
-                    script {
-                        // Jenkins automatically checks out the code that triggered the build.
-                        // We just need to read the last commit message from that checkout.
-                        def commitMessage = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
-
-                        // If the last commit was made by our CI, stop the pipeline
-                        if (commitMessage.contains('[skip ci]')) {
-                            echo "CI commit detected. Skipping build to prevent loop."
-                            currentBuild.result = 'SUCCESS'
-                            return
-                        }
-                        echo "User commit detected. Proceeding with build."
-                    }
-                }
-            }
-
             stage('Build and Push Docker Image') {
                 steps {
                     script {
@@ -41,7 +22,7 @@ def call(Map config) {
             stage('Update & Commit Manifests') {
                 steps {
                     script {
-                        // We must clone the repo again here to be able to push back
+                        // We must clone the repo here to be able to push back
                         git url: "${config.gitUrl}", branch: "${config.gitBranch}"
 
                         echo "Updating Kubernetes deployment with new image..."
@@ -54,7 +35,7 @@ def call(Map config) {
                             sh "git config --global user.email 'jenkins@example.com'"
                             sh "git config --global user.name 'Jenkins CI'"
                             sh "git add k8s/deployment.yaml"
-                            // We add [skip ci] to our own commit message
+                            // We add [skip ci] to our own commit message for good practice, even if not used by Jenkins now
                             sh "git commit -m 'CI: Update image to ${imageName}:${imageTag} [skip ci]'"
                             sh "git push https://${GIT_USER}:${GIT_TOKEN}@github.com/${config.githubRepo}.git HEAD:main"
                         }
