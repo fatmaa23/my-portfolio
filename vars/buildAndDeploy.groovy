@@ -4,16 +4,16 @@ def call(Map config) {
         agent any
 
         stages {
-            // This stage is the correct way to prevent build loops
+            // This stage is the final and correct way to prevent build loops
             stage('Check Commit Message') {
                 steps {
                     script {
-                        // Get the last commit message
+                        // Get the last commit message from the cloned repository
                         def commitMessage = sh(script: "git log -1 --pretty=%B", returnStdout: true).trim()
 
                         // If the last commit was made by Jenkins, stop the pipeline
                         if (commitMessage.contains('[skip ci]')) {
-                            echo "Commit was made by Jenkins CI. Skipping build to prevent a loop."
+                            echo "Commit was made by our CI. Skipping build to prevent a loop."
                             // This command gracefully stops the pipeline and marks it as successful
                             currentBuild.result = 'SUCCESS'
                             return
@@ -51,6 +51,7 @@ def call(Map config) {
                             sh "git config --global user.email 'jenkins@example.com'"
                             sh "git config --global user.name 'Jenkins CI'"
                             sh "git add k8s/deployment.yaml"
+                            // We add [skip ci] to our own commit message
                             sh "git commit -m 'CI: Update image to ${imageName}:${imageTag} [skip ci]'"
                             sh "git push https://${GIT_USER}:${GIT_TOKEN}@github.com/${config.githubRepo}.git HEAD:main"
                         }
