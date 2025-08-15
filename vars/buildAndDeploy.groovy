@@ -52,7 +52,8 @@ def call(Map config) {
                         echo "Updating Kubernetes deployment with new image..."
                         // Use a simple shell command to replace the image placeholder
                         // sed is a powerful stream editor for this task
-                        sh "sed -i 's|image: .*|image: ${IMAGE_NAME}:latest|' k8s/deployment.yaml"
+                        // This is the new, correct line
+                        sh "sed -i 's|image: .*|image: ${IMAGE_NAME}:${IMAGE_TAG}|' k8s/deployment.yaml"
                     }
                 }
             }
