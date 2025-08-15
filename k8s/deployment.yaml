@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-portfolio-deployment
+  labels:
+    app: my-portfolio
+spec:
+  replicas: 2 # Let's run two pods for high availability
+  selector:
+    matchLabels:
+      app: my-portfolio
+  template:
+    metadata:
+      labels:
+        app: my-portfolio
+    spec:
+      containers:
+      - name: my-portfolio
+        image: fatmaa23/my-portfolio:latest # We will replace this in the CI/CD pipeline
+        ports:
+        - containerPort: 80

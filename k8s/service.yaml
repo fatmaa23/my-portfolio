@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-portfolio-service
+spec:
+  selector:
+    app: my-portfolio
+  type: NodePort # This makes the service accessible from outside the cluster
+  ports:
+    - protocol: TCP
+      port: 80 # Service port inside the cluster
+      targetPort: 80 # Port on the pod
+      nodePort: 30007 # Port to access from outside (e.g., http://<AGENT_IP>:30007)
