@@ -15,79 +15,6 @@ This project demonstrates a complete DevOps workflow implementing CI/CD pipeline
 - Apply GitOps methodology for deployment management
 - Establish comprehensive monitoring and observability
 - Demonstrate industry-standard DevOps practices
-```mermaid
-graph TB
-    %% Developer and Source Control
-    DEV[👨‍💻 Developer] --> |git push| GH[📚 GitHub Repository<br/>Portfolio Website Code]
-    
-    %% Webhook Trigger
-    GH --> |Webhook via ngrok| NGROK[🌐 ngrok Tunnel<br/>Local Exposure]
-    NGROK --> |HTTP Request| JEN[🔧 Jenkins CI Server<br/>Agent Node VM]
-    
-    %% CI Pipeline Steps
-    JEN --> |1. Clone Code| CLONE[📥 Clone Repository]
-    CLONE --> |2. Build Image| BUILD[🐳 Docker Build<br/>Multi-stage Dockerfile]
-    BUILD --> |3. Push Image| DH[🏪 Docker Hub Registry<br/>fatma/portfolio:v1.x]
-    
-    %% Manifest Update
-    JEN --> |4. Update Manifests| UPDATE[📝 Update K8s Manifests<br/>New Image Tag]
-    UPDATE --> |5. Git Commit| GH
-    
-    %% GitOps CD Pipeline
-    GH --> |GitOps Sync| ARGO[🔄 ArgoCD<br/>Continuous Deployment]
-    ARGO --> |Deploy| K8S[☸️ Kubernetes Cluster K3s]
-    
-    %% Kubernetes Components
-    subgraph "Kubernetes Cluster (2 Nodes)"
-        subgraph "Master Node (2 vCPU, 2GB RAM)"
-            MASTER[🎯 Control Plane<br/>API Server, etcd, Scheduler]
-            ARGO_POD[🔄 ArgoCD Pods<br/>GitOps Controller]
-            PROM[📊 Prometheus<br/>Metrics Collection]
-            GRAF[📈 Grafana<br/>Visualization Dashboard]
-        end
-        
-        subgraph "Agent Node (1 vCPU, 1GB RAM)"
-            AGENT[⚙️ Worker Node<br/>kubelet, kube-proxy]
-            APP_PODS[🌐 Portfolio App Pods<br/>Nginx + Static Files]
-            JEN_VM[🔧 Jenkins Server<br/>Same VM as Agent]
-        end
-        
-        MASTER -.-> AGENT
-    end
-    
-    %% Monitoring Flow
-    APP_PODS --> |Metrics| PROM
-    AGENT --> |Node Metrics| PROM
-    MASTER --> |Cluster Metrics| PROM
-    PROM --> |Query| GRAF
-    
-    %% External Access
-    USERS[👥 End Users] --> |HTTP| LB[⚖️ LoadBalancer/NodePort<br/>Portfolio Website]
-    LB --> APP_PODS
-    
-    ADMIN[👨‍💼 DevOps Admin] --> |Monitor| GRAF
-    ADMIN --> |Manage| ARGO_POD
-    ADMIN --> |Configure| JEN
-    
-    %% Styling
-    classDef developer fill:#e1f5fe,stroke:#01579b,stroke-width:2px
-    classDef source fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    classDef ci fill:#fff3e0,stroke:#e65100,stroke-width:2px
-    classDef cd fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
-    classDef k8s fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
-    classDef monitoring fill:#fce4ec,stroke:#ad1457,stroke-width:2px
-    classDef storage fill:#f1f8e9,stroke:#33691e,stroke-width:2px
-    classDef users fill:#fff8e1,stroke:#f57f17,stroke-width:2px
-    
-    class DEV developer
-    class GH,NGROK source
-    class JEN,CLONE,BUILD,UPDATE ci
-    class ARGO,ARGO_POD cd
-    class K8S,MASTER,AGENT,APP_PODS,LB k8s
-    class PROM,GRAF monitoring
-    class DH storage
-    class USERS,ADMIN users
-```
 
 ## 🏗️ Architecture
 
@@ -112,13 +39,19 @@ GitHub Repository → Jenkins (CI) → Docker Hub → ArgoCD (CD) → Kubernetes
 
 ## 🚀 Features
 
-- ✅ **Automated CI/CD Pipeline**: Code changes trigger automatic build, test, and deployment
-- ✅ **GitOps Workflow**: Git repository as single source of truth
-- ✅ **Multi-stage Docker Build**: Optimized containerization with Nginx
-- ✅ **Kubernetes Deployment**: Scalable container orchestration
-- ✅ **Real-time Monitoring**: Comprehensive metrics and alerting
-- ✅ **Webhook Integration**: Automated pipeline triggers
-- ✅ **Infrastructure as Code**: All configurations version-controlled
+**Automated CI/CD Pipeline**: Code changes trigger automatic build, test, and deployment with full automation from commit to production.
+
+**GitOps Workflow**: Git repository serves as the single source of truth for all deployment configurations and application state.
+
+**Multi-stage Docker Build**: Optimized containerization with Nginx for efficient static content serving and minimal image size.
+
+**Kubernetes Deployment**: Scalable container orchestration using K3s for lightweight yet robust cluster management.
+
+**Real-time Monitoring**: Comprehensive metrics collection and alerting through Prometheus and Grafana integration.
+
+**Webhook Integration**: Automated pipeline triggers using GitHub webhooks with ngrok for seamless local development.
+
+**Infrastructure as Code**: All configurations are version-controlled and managed through declarative manifests.
 
 ## 📁 Project Structure
 
@@ -316,44 +249,25 @@ sudo mv ngrok /usr/local/bin/
 
 ## 🛡️ Security Considerations
 
-- Use secrets management for sensitive data
-- Implement RBAC for Kubernetes and ArgoCD
-- Regular security updates for all components
-- Network policies for cluster isolation
-- Secure webhook endpoints
+The project implements several security best practices including secrets management for sensitive data storage, Role-Based Access Control (RBAC) for Kubernetes and ArgoCD components, regular security updates for all system components, network policies for proper cluster isolation, and secure webhook endpoints with proper authentication mechanisms.
 
 ## 🔧 Troubleshooting
 
 ### Common Issues
 
-1. **Jenkins can't connect to Docker**
-   - Ensure jenkins user is in docker group
-   - Restart Jenkins service
+**Jenkins Docker Connection Problems**: If Jenkins cannot connect to Docker, ensure the jenkins user is added to the docker group using `sudo usermod -aG docker jenkins` and restart the Jenkins service afterward.
 
-2. **ArgoCD sync issues**
-   - Check repository credentials
-   - Verify manifest syntax
+**ArgoCD Synchronization Issues**: When experiencing sync problems, verify repository credentials are correctly configured and check that all Kubernetes manifest files have proper YAML syntax.
 
-3. **Webhook not triggering**
-   - Verify ngrok tunnel is active
-   - Check Jenkins webhook configuration
+**Webhook Trigger Failures**: If webhooks are not triggering the pipeline, verify that the ngrok tunnel is active and accessible, and confirm the Jenkins webhook configuration matches the ngrok URL format.
 
 ## 📝 Future Enhancements
 
-- [ ] Implement automated testing in CI pipeline
-- [ ] Add security scanning (vulnerability assessment)
-- [ ] Implement blue-green or canary deployment strategies
-- [ ] Add automatic rollback mechanisms
-- [ ] Integrate with external secret management (HashiCorp Vault)
-- [ ] Implement multi-environment deployments (dev, staging, prod)
+The project can be extended with automated testing integration in the CI pipeline, security scanning for vulnerability assessment, blue-green or canary deployment strategies for safer releases, automatic rollback mechanisms for failed deployments, integration with external secret management systems like HashiCorp Vault, and multi-environment deployment support for development, staging, and production environments.
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+Contributions are welcome! To contribute to this project, fork the repository and create a feature branch for your changes. Make sure to test your modifications thoroughly before submitting a pull request with a clear description of the improvements or fixes.
 
 ## 📄 License
 
